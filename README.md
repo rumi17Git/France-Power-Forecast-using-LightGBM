@@ -4,7 +4,7 @@ Next-day (D+1) forecast of French national electricity demand with LightGBM, tes
 
 **Result:** LightGBM forecasts tomorrow's demand with an average error of **0.89 GW (1.69% MAPE)**, against 2.30 GW for the best simple baseline: **61% lower**, and about 60% lower on each test year.
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rumi17Git/france-power-forecast/blob/main/notebook.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rumi17Git/France-Power-Forecast-using-LightGBM/blob/main/notebook.ipynb)
 
 ![French daily electricity consumption](figures/01_daily_load.png)
 
