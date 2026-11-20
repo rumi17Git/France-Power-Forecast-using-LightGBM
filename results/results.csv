@@ -1,0 +1,16 @@
+model,test year,MAE (GW),RMSE (GW),MAPE (%)
+Naive,2024,2.303,3.086,4.701
+Naive,2025,2.293,3.057,4.634
+Naive,average,2.298,3.071,4.668
+Seasonal naive,2024,3.117,4.665,5.812
+Seasonal naive,2025,3.272,4.912,6.035
+Seasonal naive,average,3.194,4.788,5.924
+LightGBM,2024,0.856,1.213,1.64
+LightGBM,2025,0.92,1.287,1.737
+LightGBM,average,0.888,1.25,1.689
+"LightGBM, no weather",2024,1.183,1.773,2.226
+"LightGBM, no weather",2025,1.278,1.807,2.391
+"LightGBM, no weather",average,1.23,1.79,2.309
+"LightGBM, monotone",2024,0.933,1.291,1.795
+"LightGBM, monotone",2025,0.893,1.235,1.707
+"LightGBM, monotone",average,0.913,1.263,1.751
