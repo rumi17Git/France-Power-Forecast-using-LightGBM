@@ -1,6 +1,6 @@
 # France Power Demand Forecasting: LightGBM + SHAP
 
-Next-day (D+1) forecast of French national electricity demand with LightGBM, tested on two full years the model never saw (2024 and 2025), and explained with SHAP.
+Next-day (D+1) forecast of French national electricity demand with LightGBM, tested on two full years the model never saw (2024 and 2025), explained with SHAP, and tracked with MLflow (experiments and model registry).
 
 **Result:** LightGBM forecasts tomorrow's demand with an average error of **0.89 GW (1.69% MAPE)**, against 2.30 GW for the best simple baseline: **61% lower**, and about 60% lower on each test year.
 
@@ -94,6 +94,26 @@ The ten largest errors on the test years ([`results/top_errors.csv`](results/top
 
 All ten are over-forecasts, and nine fall between December and February. The 28-day average error (red line) shows the same pattern: it dips below zero in both winters, by up to about 1.8 GW in early 2025, and stays close to zero the rest of the year. A likely cause is that most training winters come from before the energy savings period that started in autumn 2022, when demand reacted more strongly to cold. In a live system, an alert on this line would flag the drift.
 
+## Experiment tracking and model registry (MLflow)
+
+Every model is tracked with [MLflow](https://mlflow.org/), so each result in this README can be traced back to the exact settings and model that produced it.
+
+- **Experiment `france-power-d1`:** one run per version (the two baselines and the three LightGBM versions), with the data period, the features, the LightGBM settings and the average MAE, RMSE and MAPE.
+- **Nested runs:** each LightGBM version has one child run per test year, with its own scores, the number of trees chosen by early stopping, and the trained model saved with its input schema and a sample input.
+- **Artifacts:** the five figures and the two result tables are attached to the main LightGBM run.
+- **Model registry:** the version with the lowest average MAE (LightGBM, 0.89 GW) is registered as `france-power-d1` with the alias `champion`. The notebook then loads it back by name (`models:/france-power-d1@champion`), the way a production service would, and checks that it gives exactly the same forecasts as the trained model.
+
+![MLflow runs](figures/06_mlflow_runs.png)
+
+The tracking files (`mlflow.db` and `mlruns/`) are created when the notebook runs and are not stored in this repo. To browse them after a run:
+
+```
+pip install mlflow
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+
+then open http://127.0.0.1:5000.
+
 ## Limitations
 
 - **Oracle temperature:** the model uses the real temperature of the day it forecasts, which assumes a perfect weather forecast. The no-weather result (1.23 GW) shows the other extreme; a production system would use day-ahead weather forecasts.
@@ -107,22 +127,24 @@ All ten are over-forecasts, and nine fall between December and February. The 28-
 - A population-weighted national temperature from several cities.
 - D+1 to D+7 forecasts, one model per horizon.
 - Prediction intervals with quantile LightGBM.
-- Serve forecasts through an API with Docker and CI, as in my [CNIL RAG project](https://github.com/rumi17Git/CNIL_RAG-Compliance-Assistant-for-French-Data-Protection).
+- Retrain the champion on all the data before registering it, and promote new versions only when they beat it on the latest year.
+- Serve the registered champion through an API with Docker and CI, as in my [CNIL RAG project](https://github.com/rumi17Git/CNIL_RAG-Compliance-Assistant-for-French-Data-Protection).
 
 ## Repository
 
 ```
 notebook.ipynb      the whole pipeline, run top to bottom
-figures/            the five figures used in this README
+figures/            the figures used in this README
 results/            results.csv (all models, both years) and top_errors.csv
 requirements.txt    exact package versions used
+mlflow.db, mlruns/  MLflow tracking files, created by the notebook (not committed)
 ```
 
 ## How to run
 
 1. Open `notebook.ipynb` in Google Colab (badge above).
 2. Runtime > Run all. CPU is enough; it takes a few minutes.
-3. Figures are saved to `figures/`, tables to `results/`.
+3. Figures are saved to `figures/`, tables to `results/`, and MLflow runs and the registered model to `mlflow.db` and `mlruns/`.
 
 To run locally: `pip install -r requirements.txt`, then open the notebook in Jupyter.
 

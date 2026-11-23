@@ -7,3 +7,4 @@ matplotlib==3.10.0
 holidays==0.108
 requests==2.32.4
 pyarrow==23.0.1
+mlflow==3.18.0
